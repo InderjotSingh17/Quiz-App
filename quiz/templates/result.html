@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Result</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+        }
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .score {
+            text-align: center;
+            font-size: 22px;
+            margin: 20px 0;
+            color: #34495e;
+        }
+        .question {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 6px solid #3498db;
+        }
+        .correct {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .incorrect {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        #myChart {
+            width: 100%;
+            max-width: 600px;
+            margin: 50px auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎉 Quiz Results 🎉</h1>
+    <div class="score">
+        <strong>Score:</strong> {{ score }} out of {{ total }}
+    </div>
+    <div id="myChart"></div>
+    <hr>
+    <h2>Review Answers</h2>
+    {% for r in results %}
+        <div class="question">
+            <p><strong>Q{{ forloop.counter }}: {{ r.question|safe }}</strong></p>
+            <p>Your answer:
+                {% if r.selected == r.correct %}
+                    <span class="correct">{{ r.selected }}</span> ✅
+                {% else %}
+                    <span class="incorrect">{{ r.selected }}</span> ❌<br>
+                    <span class="correct">Correct answer: {{ r.correct }}</span>
+                {% endif %}
+            </p>
+        </div>
+    {% endfor %}
+</div>
+<script>
+    const correct = parseInt("{{ score }}");
+    const total = parseInt("{{ total }}");
+    const incorrect = total - correct;
+    const data = [{
+        values: [correct, incorrect],
+        labels: ['Correct', 'Incorrect'],
+        type: 'pie',
+        textinfo: 'label+percent',
+        hole: 0.4,
+        marker: {
+            colors: ['#28a745', '#dc3545']
+        }
+    }];
+    const layout = {
+        title: {
+            text: 'Your Score Distribution',
+            font: { size: 20 },
+            x: 0.5
+        },
+        showlegend: true,
+        height: 400,
+        width: 500
+    };
+    Plotly.newPlot('myChart', data, layout);
+</script>
+</body>
+</html>
